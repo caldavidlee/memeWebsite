@@ -15,6 +15,6 @@ ESSENTIAL CODE TO HAVE PIP in your VENV
 
 ```python
 python3 -m ensurepip --upgrade
-pip install --upgrade pip
-pip install flask
+python -m pip install --upgrade pip
+python -m pip install flask
 ```

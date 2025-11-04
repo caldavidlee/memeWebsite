@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 SF Earthquake Alert System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .alert-container {
+            margin-bottom: 30px;
+        }
+
+        .big-alert {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(255, 65, 108, 0.5);
+            animation: shake 0.5s ease-in-out, pulse 2s infinite;
+            border: 4px solid #fff;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 40px rgba(255, 65, 108, 0.5); }
+            50% { box-shadow: 0 10px 60px rgba(255, 65, 108, 0.8); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-magnitude {
+            font-size: 5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .alert-location {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .alert-details {
+            font-size: 1.2em;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .earthquake-list {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .earthquake-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid #ffd700;
+        }
+
+        .earthquake-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .eq-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .eq-magnitude {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .eq-place {
+            font-size: 1.3em;
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .eq-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: blink 1.5s infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .no-earthquakes {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+
+        .warning-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .last-updated {
+            margin-top: 10px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚨 San Francisco Earthquake Alert System</h1>
+            <p class="subtitle">Real-time monitoring within 200km of SF</p>
+        </header>
+
+        <div class="status-bar">
+            <span class="status-indicator"></span>
+            <span id="statusText">Monitoring Active</span>
+            <div class="last-updated">Last checked: <span id="lastUpdated">Loading...</span></div>
+            <br><br>
+            <button class="refresh-btn" onclick="fetchEarthquakes()">🔄 Check Now</button>
+        </div>
+
+        <div id="alertContainer" class="alert-container">
+            <!-- Big alerts will appear here -->
+        </div>
+
+        <div class="earthquake-list">
+            <h2 style="margin-bottom: 20px;">📊 Recent Earthquakes (24 hours)</h2>
+            <div id="earthquakeList">
+                <div class="no-earthquakes">
+                    <span class="warning-icon">🔍</span>
+                    Loading earthquake data...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lastEarthquakeCount = 0;
+        let isFirstLoad = true;
+
+        // Request notification permission on load
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        function showBrowserNotification(earthquake) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('🚨 EARTHQUAKE DETECTED!', {
+                    body: `Magnitude ${earthquake.magnitude} - ${earthquake.place}\nDistance: ${earthquake.distance_km}km from SF`,
+                    icon: '🌍',
+                    requireInteraction: true,
+                    tag: 'earthquake-' + earthquake.time
+                });
+
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        }
+
+        function getMagnitudeColor(magnitude) {
+            if (magnitude >= 6.0) return '#8b0000';
+            if (magnitude >= 5.0) return '#ff4b2b';
+            if (magnitude >= 4.0) return '#ff8c42';
+            if (magnitude >= 3.0) return '#ffd700';
+            return '#90ee90';
+        }
+
+        function createBigAlert(earthquake) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'big-alert';
+            alertDiv.innerHTML = `
+                <span class="warning-icon">⚠️</span>
+                <div class="alert-magnitude">M ${earthquake.magnitude}</div>
+                <div class="alert-location">${earthquake.place}</div>
+                <div class="alert-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Distance from SF</div>
+                        <div class="detail-value">${earthquake.distance_km} km</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Depth</div>
+                        <div class="detail-value">${earthquake.depth_km} km</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Time</div>
+                        <div class="detail-value">${earthquake.time}</div>
+                    </div>
+                    ${earthquake.felt ? `
+                    <div class="detail-item">
+                        <div class="detail-label">Felt Reports</div>
+                        <div class="detail-value">${earthquake.felt}</div>
+                    </div>
+                    ` : ''}
+                </div>
+                ${earthquake.url ? `<br><a href="${earthquake.url}" target="_blank" style="color: white; text-decoration: underline;">View Details on USGS →</a>` : ''}
+            `;
+            return alertDiv;
+        }
+
+        function fetchEarthquakes() {
+            fetch('/api/earthquakes')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('alertContainer');
+                    const list = document.getElementById('earthquakeList');
+                    
+                    // Update last updated time
+                    document.getElementById('lastUpdated').textContent = data.last_updated;
+                    
+                    // Clear previous content
+                    container.innerHTML = '';
+                    list.innerHTML = '';
+
+                    if (data.count === 0) {
+                        list.innerHTML = `
+                            <div class="no-earthquakes">
+                                <span class="warning-icon">✅</span>
+                                No earthquakes detected in the last 24 hours within 200km of San Francisco
+                            </div>
+                        `;
+                    } else {
+                        // Show big alert for significant earthquakes (magnitude 3.0+)
+                        const significantQuakes = data.earthquakes.filter(eq => eq.magnitude >= 3.0);
+                        
+                        if (significantQuakes.length > 0 && !isFirstLoad && data.count > lastEarthquakeCount) {
+                            // New earthquake detected!
+                            significantQuakes.forEach(eq => {
+                                showBrowserNotification(eq);
+                                container.appendChild(createBigAlert(eq));
+                            });
+                        }
+
+                        // Show all earthquakes in list
+                        data.earthquakes.forEach(earthquake => {
+                            const item = document.createElement('div');
+                            item.className = 'earthquake-item';
+                            item.style.borderLeftColor = getMagnitudeColor(earthquake.magnitude);
+                            
+                            item.innerHTML = `
+                                <div class="eq-header">
+                                    <div class="eq-magnitude">M ${earthquake.magnitude}</div>
+                                    <div class="eq-place">${earthquake.place}</div>
+                                </div>
+                                <div class="eq-details">
+                                    <div>📍 ${earthquake.distance_km} km from SF</div>
+                                    <div>⬇️ Depth: ${earthquake.depth_km} km</div>
+                                    <div>🕐 ${earthquake.time}</div>
+                                    ${earthquake.felt ? `<div>👥 ${earthquake.felt} felt reports</div>` : ''}
+                                </div>
+                                ${earthquake.url ? `<div style="margin-top: 10px;"><a href="${earthquake.url}" target="_blank" style="color: #ffd700;">View on USGS →</a></div>` : ''}
+                            `;
+                            
+                            list.appendChild(item);
+                        });
+                    }
+
+                    lastEarthquakeCount = data.count;
+                    isFirstLoad = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching earthquakes:', error);
+                    document.getElementById('earthquakeList').innerHTML = `
+                        <div class="no-earthquakes">
+                            <span class="warning-icon">❌</span>
+                            Error loading earthquake data. Please try again.
+                        </div>
+                    `;
+                });
+        }
+
+        // Fetch on load
+        fetchEarthquakes();
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchEarthquakes, 30000);
+    </script>
+</body>
+</html>
